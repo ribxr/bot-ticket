@@ -65,10 +65,49 @@ export default command.subcommand({
     const pings = interaction.options.getBoolean("pings");
     const description = interaction.options.getString("description");
     const modalMessage = interaction.options.getString("modal_message");
-
     if (!ticketChannel || !ticketChannel.isTextBased()) {
       interaction.reply({
-        content: "`❌` The ticket channel is invalid or not a text channel.",
+        embeds: [createEmbed({
+          color: constants.colors.danger,
+          author: {
+            name: "Error :(",
+            iconURL: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/4hv2o0w6odfqsc4jr5.gif"
+          },
+          description: "> The ticket channel is invalid or not a text-based channel.",
+          image: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/sg73dtqft9kp9yaosi.png"
+        })],
+        ephemeral: true,
+      });
+      return;
+    }
+
+    if (modalMessage && modalMessage.length > 45) {
+      interaction.reply({
+        embeds: [createEmbed({
+          color: constants.colors.danger,
+          author: {
+            name: "Error :(",
+            iconURL: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/4hv2o0w6odfqsc4jr5.gif"
+          },
+          description: "> The modal message title cannot exceed 45 characters.",
+          image: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/sg73dtqft9kp9yaosi.png"
+        })],
+        ephemeral: true,
+      });
+      return;
+    };
+
+    if (description && description.length > 200) {
+      interaction.reply({
+        embeds: [createEmbed({
+          color: constants.colors.danger,
+          author: {
+            name: "Error :(",
+            iconURL: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/4hv2o0w6odfqsc4jr5.gif"
+          },
+          description: "> The description cannot exceed 200 characters.",
+          image: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/sg73dtqft9kp9yaosi.png"
+        })],
         ephemeral: true,
       });
 
@@ -88,32 +127,49 @@ export default command.subcommand({
     });
 
     const embed = createEmbed({
-        color: constants.colors.primary,
-        thumbnail: interaction.guild.iconURL() ?? '',
-        title: `${interaction.guild.name} - Tickets`,
-        description: `> ${description}`,
-        image: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/v6zop3p2sb32fidi77.png",
-        footer: {
-            text: `Powered by ${interaction.client.user.username}`,
-            iconURL: interaction.client.user.avatarURL() ?? '',
-        }
+      color: constants.colors.primary,
+      thumbnail: interaction.guild.iconURL() ?? '',
+      title: `${interaction.guild.name} - Tickets`,
+      description: `> ${description}`,
+      image: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/v6zop3p2sb32fidi77.png",
+      footer: {
+        text: `Powered by ${interaction.client.user.username}`,
+        iconURL: interaction.client.user.avatarURL() ?? '',
+      }
     })
 
     const row = createRow(
-        new ButtonBuilder({
-            customId: "ticket/open",
-            label: "Open Ticket",
-            style: ButtonStyle.Primary
-        })
+      new ButtonBuilder({
+        customId: "ticket/open",
+        label: "Open Ticket",
+        style: ButtonStyle.Primary
+      })
     )
 
     await ticketChannel.send({
-        embeds: [embed],
-        components: [row]
+      embeds: [embed],
+      components: [row]
     });
 
     await interaction.reply({
-      content: "`✅` Ticket system configured successfully!",
+      embeds: [createEmbed({
+        color: constants.colors.success,
+        author: {
+          name: "Successfully setup server!",
+          iconURL: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/l846ej7gdirjlolpoz.gif"
+        },
+        description: [
+          `**Server ID:** \`${interaction.guild.id}\``,
+          `**Category:** "${category?.name}" (${category?.id})`,
+          `**Staff Role:** <@&${role?.id}>`,
+          `**Ticket Channel:** <#${ticketChannel.id}>`,
+          `**Staff Logs:** <#${staffChannel?.id}>`,
+          `**Pings:** ${pings}`,
+          `**Description:** \`\`${description}\`\``,
+          `**Modal Message:** \`\`${modalMessage}\`\``
+        ].join("\n"),
+        image: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/2xrv1bygp6s7poen1b.png"
+      })],
       ephemeral: true,
     });
   },
