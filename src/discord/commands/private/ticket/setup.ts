@@ -1,4 +1,11 @@
-import { ApplicationCommandOptionType, ButtonBuilder, ButtonStyle, ChannelType } from "discord.js";
+import { 
+  ApplicationCommandOptionType, 
+  ButtonBuilder, 
+  ButtonStyle, 
+  ChannelType,
+  userMention,
+  channelMention
+} from "discord.js";
 import command from "./command.js";
 import { QuickDB } from "quick.db";
 import { createEmbed, createRow } from "@magicyan/discord";
@@ -160,10 +167,10 @@ export default command.subcommand({
         },
         description: [
           `**Server ID:** \`${interaction.guild.id}\``,
-          `**Category:** "${category?.name}" (${category?.id})`,
-          `**Staff Role:** <@&${role?.id}>`,
-          `**Ticket Channel:** <#${ticketChannel.id}>`,
-          `**Staff Logs:** <#${staffChannel?.id}>`,
+          `**Category:** ${channelMention(category?.id ?? "")} (${category?.id})`,
+          `**Staff Role:** ${role ? userMention(role.id) : "None"}`,
+          `**Ticket Channel:** ${channelMention(ticketChannel.id)}`,
+          `**Staff Logs:** ${channelMention(staffChannel?.id ?? "")}`,
           `**Pings:** ${pings}`,
           `**Description:** \`\`${description}\`\``,
           `**Modal Message:** \`\`${modalMessage}\`\``
