@@ -15,13 +15,6 @@ export default command.subcommand({
   description: "Configures the ticket system settings.",
   options: [
     {
-      name: "category",
-      description: "Category where tickets will be created.",
-      type: ApplicationCommandOptionType.Channel,
-      channelTypes: [ChannelType.GuildCategory],
-      required: true,
-    },
-    {
       name: "role",
       description: "Role assigned to ticket staff members.",
       type: ApplicationCommandOptionType.Role,
@@ -65,7 +58,6 @@ export default command.subcommand({
   async run(interaction) {
     const db = new QuickDB();
 
-    const category = interaction.options.getChannel("category");
     const role = interaction.options.getRole("role");
     const ticketChannel = interaction.options.getChannel("ticket_channel");
     const staffChannel = interaction.options.getChannel("staff_channel");
@@ -124,7 +116,6 @@ export default command.subcommand({
     const guildKey = `ticketConfig_${interaction.guild.id}`;
 
     await db.set(guildKey, {
-      categoryId: category?.id,
       roleId: role?.id,
       ticketChannelId: ticketChannel.id,
       staffChannelId: staffChannel?.id,
@@ -167,7 +158,6 @@ export default command.subcommand({
         },
         description: [
           `**Server ID:** \`${interaction.guild.id}\``,
-          `**Category:** ${channelMention(category?.id ?? "")} (${category?.id})`,
           `**Staff Role:** ${role ? userMention(role.id) : "None"}`,
           `**Ticket Channel:** ${channelMention(ticketChannel.id)}`,
           `**Staff Logs:** ${channelMention(staffChannel?.id ?? "")}`,
