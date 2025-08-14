@@ -19,12 +19,6 @@ export default command.subcommand({
       required: true,
     },
     {
-      name: "message",
-      description: 'Welcome message. Use {user}, {user.username}, or {guild}.',
-      type: ApplicationCommandOptionType.String,
-      required: false,
-    },
-    {
       name: "duration",
       description: "How long the welcome message will remain before being deleted.",
       type: ApplicationCommandOptionType.String,
@@ -37,6 +31,12 @@ export default command.subcommand({
         { name: "2 minutes", value: "2m" },
         { name: "Never delete", value: "never" },
       ]
+    },
+    {
+      name: "message",
+      description: 'Welcome message. Use {user}, {user.username}, or {guild}.',
+      type: ApplicationCommandOptionType.String,
+      required: false,
     },
   ],
 
