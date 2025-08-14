@@ -20,7 +20,7 @@ export default command.subcommand({
     },
     {
       name: "message",
-      description: 'The welcome message. Use "{user}" to mention, "{user.username}" for username, "{guild}" for server name.',
+      description: 'Welcome message. Use {user}, {user.username}, or {guild}.',
       type: ApplicationCommandOptionType.String,
       required: false,
     },
