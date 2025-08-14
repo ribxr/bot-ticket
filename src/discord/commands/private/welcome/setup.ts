@@ -1,11 +1,11 @@
-import { 
-  ApplicationCommandOptionType, 
+import { createEmbed } from "@magicyan/discord";
+import {
+  ApplicationCommandOptionType,
   ChannelType,
   channelMention
 } from "discord.js";
-import command from "./command.js";
 import { QuickDB } from "quick.db";
-import { createEmbed } from "@magicyan/discord";
+import command from "./command.js";
 
 export default command.subcommand({
   name: "setup",
@@ -17,6 +17,12 @@ export default command.subcommand({
       type: ApplicationCommandOptionType.Channel,
       channelTypes: [ChannelType.GuildText],
       required: true,
+    },
+    {
+      name: "message",
+      description: 'The welcome message. Use "{user}" to mention, "{user.username}" for username, "{guild}" for server name.',
+      type: ApplicationCommandOptionType.String,
+      required: false,
     },
     {
       name: "duration",
@@ -38,16 +44,14 @@ export default command.subcommand({
     const db = new QuickDB();
 
     const welcomeChannel = interaction.options.getChannel("welcome_channel");
+    let messageTemplate = interaction.options.getString("message") ?? "Welcome {user} to {guild}!";
     const duration = interaction.options.getString("duration");
 
     if (!welcomeChannel || !welcomeChannel.isTextBased()) {
       interaction.reply({
         embeds: [createEmbed({
           color: constants.colors.danger,
-          author: {
-            name: "Error :(",
-            iconURL: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/4hv2o0w6odfqsc4jr5.gif"
-          },
+          author: { name: "Error :(", iconURL: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/4hv2o0w6odfqsc4jr5.gif" },
           description: "> The selected channel is invalid or not a text-based channel.",
           image: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/sg73dtqft9kp9yaosi.png"
         })],
@@ -56,21 +60,38 @@ export default command.subcommand({
       return;
     }
 
+    const validPlaceholders = ["{user}", "{user.username}", "{guild}"];
+    const regex = /\{.*?\}/g;
+    const matches = messageTemplate.match(regex) || [];
+    const invalidPlaceholders = matches.filter(p => !validPlaceholders.includes(p));
+
+    if (invalidPlaceholders.length > 0) {
+      interaction.reply({
+        embeds: [createEmbed({
+          color: constants.colors.danger,
+          author: { name: "Invalid Placeholder(s)!", iconURL: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/4hv2o0w6odfqsc4jr5.gif" },
+          description: `> The following placeholder(s) are invalid: ${invalidPlaceholders.join(", ")}\n\nUse only: {user}, {user.username}, {guild}`,
+          image: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/sg73dtqft9kp9yaosi.png"
+        })],
+        flags: ["Ephemeral"]
+      });
+      return;
+    }
+
     await db.set(`welcomeConfig_${interaction.guild.id}`, {
       welcomeChannelId: welcomeChannel.id,
+      messageTemplate,
       duration
     });
 
     interaction.reply({
       embeds: [createEmbed({
         color: constants.colors.success,
-        author: {
-          name: "Welcome system configured successfully!",
-          iconURL: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/l846ej7gdirjlolpoz.gif"
-        },
+        author: { name: "Welcome system configured successfully!", iconURL: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/l846ej7gdirjlolpoz.gif" },
         description: [
           `**Server ID:** \`${interaction.guild.id}\``,
           `**Welcome Channel:** ${channelMention(welcomeChannel.id)}`,
+          `**Message Template:** ${messageTemplate}`,
           `**Message Duration:** ${duration}`
         ].join("\n"),
         image: "https://r2.e-z.host/2082d908-7c65-4fc3-b02a-5f50f9141543/2xrv1bygp6s7poen1b.png"
